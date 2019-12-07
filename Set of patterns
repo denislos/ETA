@@ -4,7 +4,7 @@ offered_ciphersuites (max. 108)
 selected_ciphersuite (max. 1)
 offered_extensions (max. 47)
 selected_extensions (max. 47)
-pkl (public key length) = {128, 256, 384, 512, 768, 1024, 2048, 3072, 4096}
+pkl (public key length) = {128, 192, 256, 384, 512, 768, 1024, 2048, 3072, 4096}
 san_entries (subjectAltName entries)
 certificate_validity (in days)
 certificate_subject (скорее всего 1)
