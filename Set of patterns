@@ -13,11 +13,11 @@ certificate_subject (скорее всего 1)
 
 
 ciphersuites:
-0x00,0x04	TLS_RSA_WITH_RC4_128_MD5
-0x00,0x05	TLS_RSA_WITH_RC4_128_SHA
+0x00,0x04	TLS_RSA_WITH_RC4_128_MD5        - MALWARE
+0x00,0x05	TLS_RSA_WITH_RC4_128_SHA        - MALWARE
 0x00,0x07	TLS_RSA_WITH_IDEA_CBC_SHA
 0x00,0x09	TLS_RSA_WITH_DES_CBC_SHA
-0x00,0x0A	TLS_RSA_WITH_3DES_EDE_CBC_SHA
+0x00,0x0A	TLS_RSA_WITH_3DES_EDE_CBC_SHA   - MALWARE
 0x00,0x0C	TLS_DH_DSS_WITH_DES_CBC_SHA
 0x00,0x0D	TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA
 0x00,0x0F	TLS_DH_RSA_WITH_DES_CBC_SHA
@@ -33,12 +33,12 @@ ciphersuites:
 0x00,0x22	TLS_KRB5_WITH_DES_CBC_MD5
 0x00,0x23	TLS_KRB5_WITH_3DES_EDE_CBC_MD5
 0x00,0x24	TLS_KRB5_WITH_RC4_128_MD5
-0x00,0x2F	TLS_RSA_WITH_AES_128_CBC_SHA
+0x00,0x2F	TLS_RSA_WITH_AES_128_CBC_SHA     - ENTERPRISE
 0x00,0x30	TLS_DH_DSS_WITH_AES_128_CBC_SHA
 0x00,0x31	TLS_DH_RSA_WITH_AES_128_CBC_SHA
 0x00,0x32	TLS_DHE_DSS_WITH_AES_128_CBC_SHA
 0x00,0x33	TLS_DHE_RSA_WITH_AES_128_CBC_SHA
-0x00,0x35	TLS_RSA_WITH_AES_256_CBC_SHA
+0x00,0x35	TLS_RSA_WITH_AES_256_CBC_SHA     - ENTERPRISE
 0x00,0x36	TLS_DH_DSS_WITH_AES_256_CBC_SHA
 0x00,0x37	TLS_DH_RSA_WITH_AES_256_CBC_SHA
 0x00,0x38	TLS_DHE_DSS_WITH_AES_256_CBC_SHA
@@ -122,21 +122,35 @@ ciphersuites:
 0xD0,0x03	TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256
 0xD0,0x05	TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256
 
+
+selected ciphersuites:
+0x000a TLS_RSA_WITH_3DES_EDE_CBC_SHA       - MALWARE
+0x0004 TLS_RSA_WITH_RC4_128_MD5            - MALWARE
+0x006b TLS_DHE_RSA_WITH_AES_256_CBC_SHA256 - MALWARE
+0x0005 TLS_RSA_WITH_RC4_128_SHA            - MALWARE
+
+?????? TLS_RSA_WITH_RC4_128_MD5            - ENTERPRISE
+?????? TLS_RSA_WITH_RC4_128_SHA            - ENTERPRISE
+
+
+It's markable that malware traffic almost always has only 1 extension - signature_algorithms, when legitimate trafic has
+up to 9.
+
 extensions:
 0	server_name
 1	max_fragment_length
 2	client_certificate_url
 3	trusted_ca_keys
 4	truncated_hmac
-5	status_request
+5	status_request    - ENTERPRISE
 6	user_mapping
 7	client_authz
 8	server_authz
 9	cert_type
-10	supported_groups (or "elliptic_curves")
+10	supported_groups (or "elliptic_curves") - ENTERPRISE
 11	ec_point_formats
 12	srp
-13	signature_algorithms
+13	signature_algorithms - MALWARE
 14	use_srtp
 15	heartbeat
 16	application_layer_protocol_negotiation
@@ -146,7 +160,7 @@ extensions:
 20	server_certificate_type
 21	padding
 22	encrypt_then_mac
-23	extended_master_secret
+23	extended_master_secret - ENTERPRISE
 24	token_binding
 25	cached_info
 27	compress_certificateed
@@ -170,3 +184,49 @@ extensions:
 53	connection_id
 55	external_id_hash
 56	external_session_id
+0x3374 next_protocol_negotiation - ENTERPRISE
+
+
+selected extensions:
+0xff01 renegotiation_info - ENTERPRISE
+0x000b ec_point_formats   - ENTERPRISE
+
+
+public keys:
+512-bit (ECDHE_RSA) - ENTERPRISE
+2048-bit (DHE_RSA) - MALWARE
+
+
+validity:
+7305 - MALWARE
+6358 - MALWARE
+375  - MALWARE
+3651 - MALWARE
+5936 - MALWARE
+83 - ENTERPRISE
+
+
+san_entries:
+3  - MALWARE
+7  - MALWARE
+10 - MALWARE
+12 - MALWARE
+1 - ENTERPRISE
+2 - ENTERPRISE
+5 - ENTERPRISE
+
+
+certificate_subject:
+api.twitter.com - ENTERPRISE
+*.icloud.com - ENTERPRISE
+*.g.doubleclick.net - ENTERPRISE
+*.facebook.com - ENTERPRISE
+
+DGA (Domain Generation Algorithm):
+33mhwt2j.net - MALWARE 
+Common:
+block.io - MALWARE
+*.wpengine.com - MALWARE
+*.criteo.com - MALWARE
+baidu.com - MALWARE
+vastusdomains.com - MALWARE
