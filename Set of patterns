@@ -1,1 +1,12 @@
-#todo
+dest_port(443, 9001)
+tls_version(1.0, 1.1, 1.2, 1.3)
+offered_ciphersuites (max. 24)
+selected_ciphersuite (max. 24)
+offered_extensions (max. 16)
+selected_extensions (max. 16)
+pkl (public key length)
+san_entries (subjectAltName entries)
+certificate_validity (in days)
+certificate_subject (скорее всего 1)
+* inter-arrival time (for the first several packets)
+packets length(for the first several packets)
