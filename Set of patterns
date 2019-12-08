@@ -230,3 +230,9 @@ block.io - MALWARE
 *.criteo.com - MALWARE
 baidu.com - MALWARE
 vastusdomains.com - MALWARE
+
+
+selected ciphersuite 4.9
+certificate validity 4
+tls_rsa_with_rc4_128_md5 3.47
+tls_krb5_with_idea_cbc_sha 3.52
