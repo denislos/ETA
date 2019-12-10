@@ -1,6 +1,13 @@
 package mipt.information.defence;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.IOException;
+import java.io.Writer;
+
 public class Features {
+  private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
 
   public int source_port = 0;//this feature must not be included to neuronet
   public int dest_port = 0;
@@ -255,7 +262,10 @@ public class Features {
     return flagServerKey && flagClientKey && flagCertificate && flagClientHello && flagServerHello;
   }
 
-  public void parseToJson() {
-
+  public void parseToJson(Writer file1) throws IOException {
+    String json = GSON.toJson(this);
+    file1.write(json);
+    file1.write(",\n");
+    file1.flush();
   }
 }

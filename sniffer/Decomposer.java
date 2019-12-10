@@ -1,6 +1,8 @@
 package mipt.information.defence;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,9 @@ public class Decomposer {
   public static void main(final String[] args) throws IOException {
     File file = new File(folderpath);
     File[] files = file.listFiles();
+    FileWriter fileJson = new FileWriter("C:\\json\\Good_traffic.json");
+    final BufferedWriter fileBuf = new BufferedWriter(fileJson);
+    fileBuf.write("[\n");
     for (File f : files) {
       String FILENAME = folderpath + "/" + f.getName();
       StringBuilder errorBuf = new StringBuilder();
@@ -121,18 +126,15 @@ public class Decomposer {
 
                   messageType = payload[tlsIter];
                   if (TlsMessage.isSupported(messageType)) {
-                    System.out.println(TlsMessage.getMsgType(messageType));
                     byte[] msgArray = new byte[lengthOfMsg];
                     System.arraycopy(payload, tlsIter + 4, msgArray, 0, lengthOfMsg);
                     TlsMessage message = TlsMessage.getMessage(TlsMessage.getMsgType(messageType), msgArray);
                     try {
                       if (message.writeData(session)) {
-                        session.parseToJson();
+                        session.parseToJson(fileBuf);
                         listTls.remove(session);
                       }
-                    } catch (NoSuchFieldException e) {
-                      e.printStackTrace();
-                    } catch (IllegalAccessException e) {
+                    } catch (NoSuchFieldException | IllegalAccessException | IOException e) {
                       e.printStackTrace();
                     }
                   }
@@ -170,6 +172,8 @@ public class Decomposer {
     }
     System.out.println("Total Packets in folder : " + globalcount);
     System.out.println("Secure Packets in folder : " + countOfTls);
+    fileBuf.write("\n]");
+    fileBuf.flush();
   }
   public static void AnalyseHeaders(JPacket packet, int i) {
     final int id = packet.getHeaderIdByIndex(i);

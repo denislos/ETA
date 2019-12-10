@@ -229,6 +229,7 @@ class CertificateMessage extends TlsMessage {
   }
 }
 
+@Deprecated
 class ServerKeyExchangeMessage extends TlsMessage {
 
   public ServerKeyExchangeMessage(byte[] array) {
@@ -243,12 +244,15 @@ class ServerKeyExchangeMessage extends TlsMessage {
 
 class ClientKeyExchangeMessage extends TlsMessage {
 
+  private int lengthOfClientKey;
+
   public ClientKeyExchangeMessage(byte[] array) {
-    //System.out.println("Client key exc");
+    lengthOfClientKey = array[0];
   }
 
   @Override
   public boolean writeData(Features feature) {
+    feature.pkl = lengthOfClientKey;
     return feature.setFlag(FlagToParser.FLAGCLIENTKEYEXCHANGE);
   }
 }
