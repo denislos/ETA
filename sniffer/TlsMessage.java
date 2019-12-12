@@ -210,8 +210,10 @@ class ServerHelloMessage extends TlsMessage {
   @Override
   public boolean writeData(Features feature) throws NoSuchFieldException, IllegalAccessException {
     Class clazz = feature.getClass();
-    feature.selected_ciphersuite = CipherSuites.valueOf(chosen_key).getFirstByte() * 256 +
-        CipherSuites.valueOf(chosen_key).getSecondByte();
+    if (chosen_key != null) {
+      feature.selected_ciphersuite = CipherSuites.valueOf(chosen_key).getFirstByte() * 256 +
+          CipherSuites.valueOf(chosen_key).getSecondByte();
+    }
     if (!chosen_ext.isEmpty()) {
       for (String extension: chosen_ext) {
         clazz.getField(extension+"_selected").setInt(feature, 1);
@@ -301,11 +303,7 @@ class ClientKeyExchangeMessage extends TlsMessage {
   private int lengthOfClientKey;
 
   public ClientKeyExchangeMessage(byte[] array, int version) {
-    if (version == 0) {
-      lengthOfClientKey = array.length;
-    } else {
-      lengthOfClientKey = array[0];
-    }
+    lengthOfClientKey = array.length;
   }
 
   @Override
