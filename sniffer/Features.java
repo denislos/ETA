@@ -8,13 +8,13 @@ import java.io.Writer;
 public class Features {
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-
+  public int version = 0;
   public int source_port = 0;//this feature must not be included to neuronet
   public int dest_port = 0;
   public String sourceIp;//this feature must not be included to neuronet
   public String destinationIp;//this feature must not be included to neuronet
   public int selected_ciphersuite = 0;
-  public int pkl = 384;
+  public int pkl = 0;
   public int san_entries = 0;
   public int certificate_validity = 0;
   public int TLS_RSA_WITH_RC4_128_MD5 = 0;//not set - 0; set - 1
@@ -233,7 +233,7 @@ public class Features {
   private boolean flagClientHello = false;
   private boolean flagServerHello = false;
   private boolean flagClientKey = false;
-  private boolean flagServerKey = false;
+  private boolean flagServerKey = true;
   private boolean flagCertificate = false;
 
   public Features() {
