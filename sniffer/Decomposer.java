@@ -111,7 +111,7 @@ public class Decomposer {
                 }
 
                 while (tlsIter < payload.length) {
-                  if ((payload[tlsIter] == 22) || (tlsIter + 4 > payload.length)) {
+                  if ((tlsIter + 5 > payload.length) || (payload[tlsIter] == 22)) {
                     byte[] remainer = new byte[payload.length - tlsIter];
                     System.arraycopy(payload, tlsIter, remainer,0, payload.length - tlsIter);
                     SourceDestination fragmentedOne = new SourceDestination(sourcePort, sIp, destinationPort, dIp, remainer);
