@@ -67,7 +67,10 @@ public class Decomposer {
                 fragmentedPackets.remove(fragmentedIter);
               }
 
+
+
               if (payload[0] == 22) {
+                int version = payload[2];
                 if (payload.length < 6) {//inadequate but possible
                   SourceDestination fragmentedOne = new SourceDestination(sourcePort, sIp, destinationPort, dIp, payload);
                   fragmentedPackets.add(fragmentedOne);
@@ -101,34 +104,41 @@ public class Decomposer {
                   session.dest_port = destinationPort;
                   session.sourceIp = sIp;
                   session.destinationIp = dIp;
+                  session.version = version;
                   listTls.add(session);
                 } else {
                   session = listTls.get(sessionIter);
                 }
 
                 while (tlsIter < payload.length) {
-                  if (tlsIter + 4 > payload.length) {
+                  if ((payload[tlsIter] == 22) || (tlsIter + 4 > payload.length)) {
                     byte[] remainer = new byte[payload.length - tlsIter];
                     System.arraycopy(payload, tlsIter, remainer,0, payload.length - tlsIter);
                     SourceDestination fragmentedOne = new SourceDestination(sourcePort, sIp, destinationPort, dIp, remainer);
                     fragmentedPackets.add(fragmentedOne);
                     return;
                   }
-
-                  lengthOfMsg = getLengthOfMsg(payload, tlsIter);
-                  if (tlsIter + lengthOfMsg + 4 > payload.length) {
-                    byte[] remainer = new byte[payload.length - tlsIter];
-                    System.arraycopy(payload, tlsIter, remainer,0, payload.length - tlsIter);
-                    SourceDestination fragmentedOne = new SourceDestination(sourcePort, sIp, destinationPort, dIp, remainer);
-                    fragmentedPackets.add(fragmentedOne);
-                    return;
-                  }
-
                   messageType = payload[tlsIter];
+
                   if (TlsMessage.isSupported(messageType)) {
+                    System.out.println(TlsMessage.getMsgType(messageType));
+                    lengthOfMsg = getLengthOfMsg(payload, tlsIter);
+                    if (tlsIter + lengthOfMsg + 4 > payload.length) {
+                      byte[] remainer = new byte[payload.length - tlsIter + 5];
+                      remainer[0] = 0x16;
+                      remainer[1] = 0;
+                      remainer[2] = 0;
+                      remainer[3] = 0;
+                      remainer[4] = 0;
+                      System.arraycopy(payload, tlsIter, remainer,5, payload.length - tlsIter);
+                      SourceDestination fragmentedOne = new SourceDestination(sourcePort, sIp, destinationPort, dIp, remainer);
+                      fragmentedPackets.add(fragmentedOne);
+                      return;
+                    }
+
                     byte[] msgArray = new byte[lengthOfMsg];
                     System.arraycopy(payload, tlsIter + 4, msgArray, 0, lengthOfMsg);
-                    TlsMessage message = TlsMessage.getMessage(TlsMessage.getMsgType(messageType), msgArray);
+                    TlsMessage message = TlsMessage.getMessage(TlsMessage.getMsgType(messageType), msgArray, version);
                     try {
                       if (message.writeData(session)) {
                         session.parseToJson(fileBuf);
@@ -137,6 +147,10 @@ public class Decomposer {
                     } catch (NoSuchFieldException | IllegalAccessException | IOException e) {
                       e.printStackTrace();
                     }
+                  } else {
+                    lengthOfMsg = 1;
+                    lengthOfMsg += (payload[tlsIter + 4] >= 0) ? payload[tlsIter + 4] : payload[tlsIter + 4] + 256;
+                    lengthOfMsg += (payload[tlsIter + 3] >= 0) ? (payload[tlsIter + 3]) * 256 : (payload[tlsIter + 3] + 256) * 256;
                   }
 
                   tlsIter += lengthOfMsg + 4;

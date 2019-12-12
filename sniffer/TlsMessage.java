@@ -1,5 +1,9 @@
 package mipt.information.defence;
 
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Formatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,7 +36,7 @@ abstract public class TlsMessage {
     }
   }
 
-  public static TlsMessage getMessage(MsgType msg, byte[] array) throws UnsupportedOperationException {
+  public static TlsMessage getMessage(MsgType msg, byte[] array, int version) throws UnsupportedOperationException {
     switch(msg)
     {
       case ClientHello:
@@ -44,7 +48,7 @@ abstract public class TlsMessage {
       case ServerKeyExchange:
         return new ServerKeyExchangeMessage(array);
       case ClientKeyExchange:
-        return new ClientKeyExchangeMessage(array);
+        return new ClientKeyExchangeMessage(array, version);
       default:
         throw new UnsupportedOperationException();
     }
@@ -219,17 +223,67 @@ class ServerHelloMessage extends TlsMessage {
 
 class CertificateMessage extends TlsMessage {
 
+  private static final Byte MAGIC_0 = 0x30;
+  private static final Byte MAGIC_1 = 0x1e;
+
+  private static final Byte MAGIC_DELIMETER_0 = 0x17;
+  private static final Byte MAGIC_DELIMETER_1 = 0x0d;
+
+  private static final String DATE_FORMAT = "yy:MM:dd HH:mm:ss";
+
+  private int validity = 1; // Treat as it is always valid
+
   public CertificateMessage(byte[] array) {
-    //System.out.println("Certificate");
+    final int length = array.length;
+
+    for (int i = 0; i < length; i++) {
+      if (array[i] == MAGIC_0 && array[i + 1] == MAGIC_1)
+      {
+        if (array[i + 2] == MAGIC_DELIMETER_0 && array[i + 3] == MAGIC_DELIMETER_1 &&
+            array[i + 17] == MAGIC_DELIMETER_0 && array[i + 18] == MAGIC_DELIMETER_1)
+        {
+          Date beforeDate = parseDate(Arrays.copyOfRange(array, i + 4, i + 16));
+          Date afterDate = parseDate(Arrays.copyOfRange(array, i + 19, i + 31));
+
+          Date currentDate = new Date();
+
+          if ((currentDate.compareTo(beforeDate) < 0) || (currentDate.compareTo(afterDate) > 0))
+          {
+            validity = 0;
+          }
+        }
+      }
+    }
+  }
+
+  private static Date parseDate(byte[] array) {
+    StringBuilder sbuf = new StringBuilder();
+    Formatter fmt = new Formatter(sbuf);
+    fmt.format("%c%c:%c%c:%c%c %c%c:%c%c:%c%c", array[0], array[1], array[2], array[3], array[4], array[5], array[6], array[7], array[8], array[9], array[10], array[11]);
+    SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+
+    Date date = new Date();
+
+    try {
+      date = dateFormat.parse(sbuf.toString());
+    }
+    catch (Exception e)
+    {
+      System.out.println("Ooops");
+    }
+    fmt.close();
+
+    return date;
   }
 
   @Override
   public boolean writeData(Features feature) {
+    feature.certificate_validity = validity;
     return feature.setFlag(FlagToParser.FLAGCERTIFICATE);
   }
 }
 
-@Deprecated
+
 class ServerKeyExchangeMessage extends TlsMessage {
 
   public ServerKeyExchangeMessage(byte[] array) {
@@ -246,8 +300,12 @@ class ClientKeyExchangeMessage extends TlsMessage {
 
   private int lengthOfClientKey;
 
-  public ClientKeyExchangeMessage(byte[] array) {
-    lengthOfClientKey = array[0];
+  public ClientKeyExchangeMessage(byte[] array, int version) {
+    if (version == 0) {
+      lengthOfClientKey = array.length;
+    } else {
+      lengthOfClientKey = array[0];
+    }
   }
 
   @Override
