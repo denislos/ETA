@@ -27,6 +27,7 @@ public enum Extensions {
   extended_master_secret(23),
   token_binding(24),
   cached_info(25),
+  tls_lts(26),
   compress_certificateed(27),
   record_size_limit(28),
   pwd_protect(29),

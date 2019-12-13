@@ -94,6 +94,10 @@ class ClientHelloMessage extends TlsMessage {
     int secondByte;
     int codeExt;
 
+    if (array.length < 35) {
+      System.out.println("Connection failed");
+      return;
+    }
     int lengthSessionID = (array[34] >= 0) ? array[34] : array[34] + 256;
     msgPointer += lengthSessionID;
 
@@ -179,6 +183,10 @@ class ServerHelloMessage extends TlsMessage {
     int codeExt;
     int lengthOfOne;
 
+    if (array.length < 35) {
+      System.out.println("Connection failed");
+      return;
+    }
     int lengthSessionID = (array[34] >= 0) ? array[34] : array[34] + 256;
     msgPointer += lengthSessionID;
 
