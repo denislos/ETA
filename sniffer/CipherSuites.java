@@ -320,8 +320,7 @@ TLS_GOSTR341094_RSA_WITH_28147_CNT_MD5 (0xff, 0x00) ,
 TLS_RSA_WITH_28147_CNT_GOST94 (0xff, 0x01) ,
 SSL_RSA_FIPS_WITH_DES_CBC_SHA (0xfe, 0xfe) ,
 SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA (0xfe, 0xff) ,
-SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA (0xfe, 0xe0) ,
-SSL_RSA_FIPS_WITH_DES_CBC_SHA (0xfe, 0xe1) ;}
+SSL_RSA_FIPS_WITH_DES_CBC_SHA (0xfe, 0xe1) ;
 
   private final int firstByte;
   private final int secondByte;
